@@ -1,0 +1,1218 @@
+bash
+
+cat > /tmp/build_guide.py << 'PYEOF'
+# Build the comprehensive economics guide HTML
+
+content = '''<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia Economia — Mankiw Caps 23–30</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f8f8f6;--bg3:#f0efe8;--text:#1a1a1a;--text2:#555;--text3:#888;--border:#e0dfd8;--border2:#ccc;--blue:#185FA5;--blue-bg:#E6F1FB;--green:#3B6D11;--green-bg:#EAF3DE;--amber:#854F0B;--amber-bg:#FAEEDA;--red:#A32D2D;--red-bg:#FCEBEB;--teal:#0F6E56;--teal-bg:#E1F5EE;--purple:#3C3489;--purple-bg:#EEEDFE;--coral:#993C1D;--coral-bg:#FAECE7;--radius:8px;--radius-lg:12px;--mono:monospace}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.65}
+.nav-outer{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 1rem}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding:8px 0}
+.nav::-webkit-scrollbar{display:none}
+.nav button{white-space:nowrap;font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg);cursor:pointer;color:var(--text2);transition:all .15s;flex-shrink:0}
+.nav button.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.nav button:hover:not(.active){background:var(--bg3)}
+.page{display:none;max-width:860px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.page.active{display:block}
+.pg-title{font-size:22px;font-weight:500;margin-bottom:.25rem}
+.pg-sub{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.badge{display:inline-block;font-size:11px;padding:2px 10px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);margin-bottom:.75rem;color:var(--text2)}
+.sec-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+.sec{margin-bottom:1.75rem}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:.75rem}
+.card-title{font-size:15px;font-weight:500;margin-bottom:.5rem}
+.card-body{font-size:14px;line-height:1.65;color:var(--text2)}
+.formula{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:.75rem 1rem;margin:.75rem 0;font-family:var(--mono);font-size:13px;text-align:center;color:var(--text)}
+.tip{border-left:3px solid var(--teal);padding:.6rem 1rem;margin:.75rem 0;font-size:13px;line-height:1.6;color:var(--text2);background:var(--teal-bg);border-radius:0 var(--radius) var(--radius) 0}
+.tip strong{color:var(--teal)}
+.warn{border-left:3px solid #EF9F27;padding:.6rem 1rem;margin:.75rem 0;font-size:13px;line-height:1.6;background:var(--amber-bg);color:var(--amber);border-radius:0 var(--radius) var(--radius) 0}
+.info{border-left:3px solid var(--blue);padding:.6rem 1rem;margin:.75rem 0;font-size:13px;line-height:1.6;background:var(--blue-bg);color:var(--blue);border-radius:0 var(--radius) var(--radius) 0}
+.danger{border-left:3px solid var(--red);padding:.6rem 1rem;margin:.75rem 0;font-size:13px;line-height:1.6;background:var(--red-bg);color:var(--red);border-radius:0 var(--radius) var(--radius) 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.cmp{background:var(--bg3);border-radius:var(--radius);padding:.75rem;font-size:13px;line-height:1.6}
+.cmp h4{font-size:13px;font-weight:500;margin-bottom:.35rem}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;margin-right:4px;margin-bottom:4px}
+.tg{background:var(--green-bg);color:var(--green)}
+.tb{background:var(--blue-bg);color:var(--blue)}
+.ta{background:var(--amber-bg);color:var(--amber)}
+.tr{background:var(--red-bg);color:var(--red)}
+.tp{background:var(--purple-bg);color:var(--purple)}
+.tc{background:var(--coral-bg);color:var(--coral)}
+.steps{list-style:none;padding:0;counter-reset:st}
+.steps li{counter-increment:st;display:flex;gap:.75rem;margin-bottom:.6rem;font-size:14px;line-height:1.6;color:var(--text2)}
+.steps li::before{content:counter(st);flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--text);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;margin-top:2px}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin:.5rem 0}
+
+/* Book Questions */
+.q-item{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:.6rem;overflow:hidden}
+.q-head{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;cursor:pointer;background:var(--bg);gap:1rem}
+.q-head:hover{background:var(--bg3)}
+.q-num{font-size:11px;font-weight:500;color:var(--text3);flex-shrink:0}
+.q-text{font-size:14px;color:var(--text);flex:1}
+.q-arrow{color:var(--text3);font-size:12px;transition:transform .2s;flex-shrink:0}
+.q-body{display:none;padding:.75rem 1rem;border-top:1px solid var(--border);font-size:14px;color:var(--text2);background:var(--bg2);line-height:1.65}
+.q-body.open{display:block}
+.q-arrow.open{transform:rotate(180deg)}
+
+/* Simulado */
+.quiz-q{border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem;background:var(--bg)}
+.quiz-stem{font-size:14px;line-height:1.6;margin-bottom:.75rem;font-weight:500}
+.quiz-cap{font-size:11px;color:var(--text3);margin-bottom:.5rem}
+.opt{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .75rem;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:.4rem;cursor:pointer;font-size:13px;line-height:1.5;transition:all .15s;background:var(--bg)}
+.opt:hover{background:var(--bg3)}
+.opt.selected{border-color:var(--blue);background:var(--blue-bg)}
+.opt.correct{border-color:var(--green)!important;background:var(--green-bg)!important;color:var(--green)!important}
+.opt.wrong{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.opt-letter{font-weight:500;flex-shrink:0;min-width:14px}
+.tf-row{display:flex;gap:.5rem;margin-bottom:.4rem}
+.tf-btn{flex:1;padding:.5rem;border-radius:var(--radius);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;background:var(--bg)}
+.tf-btn:hover{background:var(--bg3)}
+.tf-btn.selected{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+.tf-btn.tf-right{border-color:var(--green)!important;background:var(--green-bg)!important;color:var(--green)!important}
+.tf-btn.tf-wrong{border-color:var(--red)!important;background:var(--red-bg)!important;color:var(--red)!important}
+.q-reveal{display:none;margin-top:.75rem;padding:.75rem;background:var(--bg2);border-radius:var(--radius);font-size:13px;color:var(--text2);border-left:3px solid var(--green)}
+.q-reveal.open{display:block}
+.disc-q{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.disc-stem{font-size:14px;font-weight:500;margin-bottom:.75rem;line-height:1.6}
+.disc-gabarito{display:none;margin-top:.75rem;padding:.75rem;background:var(--bg2);border-radius:var(--radius);border-left:3px solid var(--blue);font-size:13px;color:var(--text2);line-height:1.65}
+.disc-gabarito.open{display:block}
+.quiz-actions{display:flex;gap:.75rem;margin:1.25rem 0}
+.btn-primary{padding:.6rem 1.5rem;border-radius:20px;border:none;background:var(--text);color:var(--bg);cursor:pointer;font-size:13px;font-weight:500}
+.btn-primary:hover{opacity:.85}
+.btn-outline{padding:.6rem 1.5rem;border-radius:20px;border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px}
+.btn-outline:hover{background:var(--bg3)}
+.score-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;text-align:center;margin:.75rem 0;display:none}
+.score-box.open{display:block}
+.score-num{font-size:28px;font-weight:500}
+.score-label{font-size:13px;color:var(--text2)}
+h3{font-size:16px;font-weight:500;margin-bottom:.75rem}
+h4{font-size:14px;font-weight:500;margin-bottom:.5rem}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="nav-outer">
+<div class="nav">
+<button class="active" onclick="go('c23')">23 – PIB</button>
+<button onclick="go('c24')">24 – IPC</button>
+<button onclick="go('c25')">25 – Produção</button>
+<button onclick="go('c26')">26 – Poupança</button>
+<button onclick="go('c27')">27 – Finanças</button>
+<button onclick="go('c28')">28 – Desemprego</button>
+<button onclick="go('c29')">29 – Moeda ★</button>
+<button onclick="go('c30')">30 – Inflação</button>
+<button onclick="go('qbook')">Questões do Livro</button>
+<button onclick="go('sim1')">Simulado 1</button>
+<button onclick="go('sim2')">Simulado 2</button>
+<button onclick="go('sim3')">Simulado 3 ★</button>
+</div>
+</div>
+
+<!-- ===== CAP 23 ===== -->
+<div id="c23" class="page active">
+<span class="badge">Capítulo 23</span>
+<p class="pg-title">Medindo a Renda Nacional — PIB</p>
+<p class="pg-sub">O que é e como se mede a riqueza de uma economia como um todo</p>
+
+<div class="sec"><p class="sec-label">Conceito central</p>
+<div class="card"><p class="card-title">O que é o PIB?</p>
+<p class="card-body">PIB é o <strong>valor de mercado</strong> de todos os <strong>bens e serviços finais</strong> produzidos num país num certo período. Mede duas coisas ao mesmo tempo: <strong>renda total</strong> e <strong>despesa total</strong>.</p>
+<div class="tip"><strong>Macete:</strong> toda transação tem comprador + vendedor → cada R$1 gasto é R$1 recebido. Por isso renda = despesa sempre.</div></div>
+
+<div class="card"><p class="card-title">Os 4 componentes do PIB</p>
+<div class="formula">Y = C + I + G + EL</div>
+<div class="grid2">
+<div><span class="tag tb">C</span> Consumo — gastos das famílias (exceto imóveis)</div>
+<div><span class="tag tg">I</span> Investimento — capital fixo + estoques + residências</div>
+<div><span class="tag ta">G</span> Compras do governo (NÃO inclui transferências!)</div>
+<div><span class="tag tp">EL</span> Exportações − Importações</div>
+</div>
+<div class="warn"><strong>Armadilha:</strong> G não inclui Bolsa Família, aposentadoria, seguro-desemprego. Transferências não são compras de bens/serviços.</div></div></div>
+
+<div class="sec"><p class="sec-label">PIB Real vs. Nominal</p>
+<div class="grid2">
+<div class="cmp"><h4>PIB Nominal</h4>Produção a preços do <strong>ano corrente</strong>. Sobe com inflação mesmo sem crescimento real.</div>
+<div class="cmp"><h4>PIB Real</h4>Produção a preços do <strong>ano-base</strong>. Mede variação física da produção. É o que importa.</div>
+</div>
+<div class="formula">Deflator do PIB = (PIB Nominal / PIB Real) × 100</div>
+<div class="tip"><strong>Macete deflator vs IPC:</strong> deflator cobre a cesta variável (tudo produzido); IPC cobre a cesta fixa do consumidor. Petroleo importado: afeta IPC, NÃO o deflator.</div></div>
+
+<div class="sec"><p class="sec-label">O que o PIB não conta</p>
+<div class="card"><div class="pill-row">
+<span class="tag tr">Bens intermediários (farinha no pão — conta só o pão)</span>
+<span class="tag tr">Produção doméstica não paga (lavar roupa em casa)</span>
+<span class="tag tr">Economia subterrânea</span>
+<span class="tag tr">Revenda de bens usados</span>
+<span class="tag tr">Lazer e qualidade ambiental</span>
+</div></div></div>
+</div>
+
+<!-- ===== CAP 24 ===== -->
+<div id="c24" class="page">
+<span class="badge">Capítulo 24</span>
+<p class="pg-title">Medindo o Custo de Vida — IPC</p>
+<p class="pg-sub">Como medir se a vida está mais cara e comparar valores no tempo</p>
+
+<div class="sec"><p class="sec-label">As 5 etapas do IPC</p>
+<div class="card"><ol class="steps">
+<li><strong>Fixar a cesta</strong> — pesquisa determina o que o consumidor típico compra (ex: 4 cachorros-quentes + 2 hambúrgueres). Permanece fixa!</li>
+<li><strong>Coletar preços</strong> — verificar preços da cesta em cada período analisado</li>
+<li><strong>Calcular custo da cesta</strong> — quantidade fixa × preços do período</li>
+<li><strong>Escolher ano-base e calcular IPC</strong> — divide custo atual pelo custo no ano-base × 100</li>
+<li><strong>Calcular taxa de inflação</strong> — variação % do IPC entre dois períodos</li>
+</ol>
+<div class="formula">IPC = (Custo da cesta no ano corrente / Custo da cesta no ano-base) × 100</div>
+<div class="formula">Taxa de inflação = [(IPC₂ − IPC₁) / IPC₁] × 100</div></div></div>
+
+<div class="sec"><p class="sec-label">Comparando valores no tempo</p>
+<div class="formula">Valor hoje = Valor passado × (IPC hoje / IPC passado)</div>
+<div class="card"><p class="card-body">Exemplo: Babe Ruth ganhou $80 mil em 1931. Para saber o equivalente hoje, multiplique pelo ratio dos IPCs. O que parecia muito ou pouco em 1931 pode ser bem diferente em valor real hoje.</p></div></div>
+
+<div class="sec"><p class="sec-label">IPC vs. Deflator do PIB — diferenças cruciais</p>
+<div class="grid2">
+<div class="cmp"><h4>IPC</h4>Cesta <strong>fixa</strong>. Inclui importados. Não inclui bens de capital. Calculado mensalmente. Medida preferida para o custo de vida do consumidor.</div>
+<div class="cmp"><h4>Deflator do PIB</h4>Cesta <strong>variável</strong> (adapta-se). Exclui importados. Inclui bens de capital. Medida mais ampla do nível de preços da economia.</div>
+</div>
+<div class="tip"><strong>Teste rápido:</strong> "Preço do submarino da Marinha sobe" → afeta deflator (G), não IPC (não é bem de consumo). "Preço do petróleo importado sobe" → afeta IPC, não deflator (não é produção doméstica).</div></div>
+
+<div class="sec"><p class="sec-label">3 vieses que fazem o IPC superestimar a inflação</p>
+<div class="card"><ol class="steps">
+<li><strong>Viés de substituição:</strong> quando o frango fica caro, consumidores compram mais carne. IPC usa cesta fixa e não capta essa substituição → superestima custo</li>
+<li><strong>Introdução de novos bens:</strong> IPC não incorpora imediatamente produtos novos (smartphones etc.) que melhoram o padrão de vida sem reflectir no índice</li>
+<li><strong>Variações de qualidade:</strong> um carro 2024 é melhor que um 2004, mas o IPC trata como equivalente → o aumento de preço parece inflação mas é ganho de qualidade</li>
+</ol>
+<div class="info">Consequência: se o IPC superestima a inflação, então o crescimento do PIB real é subestimado — a economia cresceu mais do que as estatísticas mostram.</div></div></div>
+</div>
+
+<!-- ===== CAP 25 ===== -->
+<div id="c25" class="page">
+<span class="badge">Capítulo 25 — somente função de produção</span>
+<p class="pg-title">Função de Produção e Produtividade</p>
+<p class="pg-sub">Por que alguns países produzem mais? O que determina o padrão de vida?</p>
+
+<div class="sec"><p class="sec-label">A função de produção</p>
+<div class="card"><p class="card-title">Fórmula central — decore esta</p>
+<div class="formula" style="font-size:17px">Y = A · F(L, K, H, N)</div>
+<div class="grid2">
+<div><span class="tag tg">Y</span> Produção total (output)</div>
+<div><span class="tag tb">A</span> Conhecimento tecnológico</div>
+<div><span class="tag ta">L</span> Trabalho (labour)</div>
+<div><span class="tag ta">K</span> Capital físico</div>
+<div><span class="tag ta">H</span> Capital humano</div>
+<div><span class="tag ta">N</span> Recursos naturais</div>
+</div>
+<div class="tip"><strong>Macete ALKHNS:</strong> A multiplica tudo. Se a tecnologia melhora (A↑), a produção aumenta sem mudar nenhum insumo físico.</div></div></div>
+
+<div class="sec"><p class="sec-label">Retornos constantes de escala — propriedade chave</p>
+<div class="card">
+<div class="formula">xY = A · F(xL, xK, xH, xN)</div>
+<p class="card-body">Dobrar TODOS os insumos dobra a produção. Mas se só um insumo dobra (ex: só L), o output aumenta menos que o dobro.</p>
+<div class="warn"><strong>Armadilha clássica:</strong> "retornos constantes de escala significa que se L dobra, Y dobra" → FALSO. Só vale quando TODOS os insumos dobram simultaneamente.</div></div></div>
+
+<div class="sec"><p class="sec-label">Produção por trabalhador — a mais importante para prova</p>
+<div class="card"><p class="card-title">Derivação: faça x = 1/L na equação acima</p>
+<div class="formula">Y/L = A · F(1, K/L, H/L, N/L)</div>
+<p class="card-body"><strong>Interpretação:</strong> a produtividade do trabalhador (Y/L = PIB per capita) depende da tecnologia (A), do capital físico por trabalhador (K/L), do capital humano por trabalhador (H/L) e dos recursos naturais por trabalhador (N/L).</p>
+<div class="tip"><strong>Por que isso importa?</strong> Padrão de vida ≈ renda per capita ≈ Y/L. Um país fica rico aumentando qualquer um desses fatores — especialmente A.</div></div></div>
+
+<div class="sec"><p class="sec-label">Os 4 determinantes da produtividade</p>
+<div class="grid2">
+<div class="card"><p class="card-title">Capital físico (K)</p>
+<p class="card-body" style="font-size:13px">Ferramentas, máquinas, prédios, computadores. Mais K por trabalhador → mais produtivo. Pedreiro com betoneira vs. enxada.</p></div>
+<div class="card"><p class="card-title">Capital humano (H)</p>
+<p class="card-body" style="font-size:13px">Educação, treinamento, experiência. É produzido, acumula, aumenta produtividade. Semelhante ao K mas intangível.</p></div>
+<div class="card"><p class="card-title">Recursos naturais (N)</p>
+<p class="card-body" style="font-size:13px">Não são essenciais — Japão é rico sem N abundante. Comércio internacional compensa.</p></div>
+<div class="card"><p class="card-title">Tecnologia (A)</p>
+<p class="card-body" style="font-size:13px">O saber <em>como</em> produzir. Diferente de H: A é da sociedade, H é do indivíduo. Pode ser público (rotação de culturas) ou privado (patente).</p></div>
+</div>
+<div class="danger"><strong>H ≠ A:</strong> H é o tempo que você dedica a estudar um livro. A é a qualidade do livro (o conhecimento que a sociedade possui).</div></div>
+</div>
+
+<!-- ===== CAP 26 ===== -->
+<div id="c26" class="page">
+<span class="badge">Capítulo 26</span>
+<p class="pg-title">Poupança, Investimento e Sistema Financeiro</p>
+<p class="pg-sub">Como o dinheiro de quem poupa chega a quem investe</p>
+
+<div class="sec"><p class="sec-label">Instituições do sistema financeiro</p>
+<div class="grid2">
+<div class="cmp"><h4>Mercados financeiros (diretos)</h4>Poupador → direto ao tomador.<br><span class="tag tb">Mercado de títulos</span> <span class="tag tb">Mercado de ações</span></div>
+<div class="cmp"><h4>Intermediários financeiros</h4>Poupador → instituição → tomador.<br><span class="tag tg">Bancos</span> <span class="tag tg">Fundos mútuos</span></div>
+</div>
+<div class="grid2">
+<div class="cmp"><h4>Título (bond)</h4>Certificado de dívida. Prazo definido. Juros fixos. Portador = <strong>credor</strong>. Menor risco, menor retorno. Prazo mais longo → juros mais altos (compensa risco).</div>
+<div class="cmp"><h4>Ação (stock)</h4>Participação na empresa. Sem vencimento. Dividendos variáveis. Portador = <strong>proprietário</strong>. Maior risco, maior retorno potencial.</div>
+</div></div>
+
+<div class="sec"><p class="sec-label">Identidades contábeis fundamentais — DECORAR</p>
+<div class="formula">Y = C + I + G (economia fechada)</div>
+<div class="formula">Y − C − G = I</div>
+<div class="formula" style="font-size:16px;font-weight:500">S = I (poupança nacional = investimento)</div>
+<div class="grid2">
+<div class="cmp"><h4>Poupança privada</h4><span class="formula" style="margin:4px 0">Y − T − C</span>Renda familiar depois de impostos e consumo</div>
+<div class="cmp"><h4>Poupança pública</h4><span class="formula" style="margin:4px 0">T − G</span>T>G = superávit | T&lt;G = déficit</div>
+</div>
+<div class="formula">S nacional = Poupança privada + Poupança pública = (Y−T−C) + (T−G)</div>
+<div class="danger"><strong>Confusão clássica:</strong> "investir" no cotidiano = aplicar dinheiro. Em macroeconomia, <strong>investimento = compra de capital novo</strong> (máquinas, prédios, estoques). Comprar ações = poupar. Construir fábrica = investir.</div></div>
+
+<div class="sec"><p class="sec-label">Mercado de fundos para empréstimos</p>
+<div class="card"><p class="card-body">Oferta = poupança nacional. Demanda = investimento. Preço de equilíbrio = <strong>taxa de juros real</strong>.</p>
+<div class="formula">Taxa de juros real sobe → poupança ↑, investimento ↓ (e vice-versa)</div></div>
+
+<div class="card"><p class="card-title">3 políticas — essencial para prova com gráfico</p>
+<ol class="steps">
+<li><strong>Incentivos à poupança</strong> (ex: isenção de IR sobre juros) → oferta ↑ → curva de oferta desloca à direita → juros <strong>caem</strong> → investimento <strong>sobe</strong></li>
+<li><strong>Déficit do governo</strong> (G>T) → poupança pública ↓ → oferta ↓ → juros <strong>sobem</strong> → expulsa investimento privado (<em>crowding out</em>)</li>
+<li><strong>Incentivos ao investimento</strong> (ex: crédito tributário para capital) → demanda ↑ → juros <strong>sobem</strong> → poupança <strong>sobe</strong></li>
+</ol>
+<div class="tip"><strong>Macete crowding out:</strong> governo deficitário compete por fundos → juros sobem → empresas privadas investem menos. Governo "empurra para fora" o investimento privado.</div></div></div>
+</div>
+
+<!-- ===== CAP 27 ===== -->
+<div id="c27" class="page">
+<span class="badge">Capítulo 27</span>
+<p class="pg-title">Ferramentas Básicas das Finanças</p>
+<p class="pg-sub">Valor no tempo, risco, diversificação e mercados eficientes</p>
+
+<div class="sec"><p class="sec-label">Valor presente e valor futuro</p>
+<div class="card"><p class="card-title">Fórmulas essenciais</p>
+<div class="formula">Valor futuro = VP × (1 + r)ᴺ</div>
+<div class="formula">Valor presente = VF / (1 + r)ᴺ</div>
+<p class="card-body">r = taxa de juros (decimal), N = número de anos. Encontrar o VP a partir do VF se chama <strong>desconto</strong>.</p>
+<div class="tip"><strong>Macete Regra de 70:</strong> se uma variável cresce a x% ao ano, ela dobra em aproximadamente 70/x anos. Taxa de 7% → dobra em 10 anos. Taxa de 2% → dobra em 35 anos.</div></div>
+<div class="info"><strong>Aplicação prática:</strong> empresa pondera investir $100 mi hoje para receber $200 mi em 10 anos. Decisão depende da taxa de juros. Se r=5%: VP dos $200 mi = $123 mi > $100 mi → investe. Se r=8%: VP = $93 mi &lt; $100 mi → não investe. Por isso investimento cai quando a taxa de juros sobe.</div></div>
+
+<div class="sec"><p class="sec-label">Gestão do risco</p>
+<div class="card"><p class="card-title">Aversão ao risco</p>
+<p class="card-body">Maioria das pessoas tem aversão ao risco: a dor de perder $1.000 supera o prazer de ganhar $1.000. Isso se explica pela utilidade marginal decrescente — cada R$ adicional dá cada vez menos satisfação.</p></div>
+
+<div class="grid2">
+<div class="cmp"><h4>Risco específico da empresa</h4>Incerteza associada a UMA empresa. <strong>Pode ser eliminado</strong> pela diversificação. Ex: Enron faliu → quem tinha só ações da Enron perdeu tudo.</div>
+<div class="cmp"><h4>Risco de mercado</h4>Incerteza da economia como um todo (recessão, crise). <strong>Não pode ser eliminado</strong> pela diversificação. Afeta todas as empresas simultaneamente.</div>
+</div>
+<div class="card"><p class="card-title">Diversificação</p>
+<p class="card-body">Passar de 1 para 10 ações elimina grande parte do risco específico. De 10 para 20, elimina mais um pouco. Acima de 30 ações, o ganho marginal é pequeno. Mas o risco de mercado (~20% do risco total) nunca é eliminado.</p>
+<div class="tip"><strong>Macete:</strong> "Não coloque todos os ovos em uma só cesta." Diversificação reduz, mas não elimina, o risco.</div></div>
+
+<div class="card"><p class="card-title">Seleção adversa e risco moral em seguros</p>
+<div class="grid2">
+<div><strong>Seleção adversa:</strong> pessoas de alto risco têm mais incentivo para contratar seguro → a seguradora acaba com clientes piores que a média da população.</div>
+<div><strong>Risco moral:</strong> após contratar o seguro, as pessoas tomam mais riscos porque os custos são transferidos para a seguradora.</div>
+</div></div></div>
+
+<div class="sec"><p class="sec-label">Hipótese dos Mercados Eficientes (HME)</p>
+<div class="card"><p class="card-title">O que diz</p>
+<p class="card-body">O preço de mercado de uma ação reflete <strong>toda a informação publicamente disponível</strong> sobre a empresa. Se houver informação pública que permitisse prever que o preço vai subir, os investidores já a teriam incorporado — e o preço já teria subido.</p>
+<div class="formula">Preços das ações seguem "passeio aleatório" — variações são imprevisíveis</div>
+<div class="tip"><strong>Implicação prática:</strong> análise técnica (gráficos) e fundamentalista não "batem o mercado" de forma consistente no longo prazo. Fundos de índice tendem a superar fundos com gestão ativa após custos.</div></div>
+<div class="warn"><strong>Ceticismo:</strong> alguns economistas apontam anomalias como evidência contra a HME — bolhas especulativas, pânico, seguimento de tendências. O debate não está encerrado.</div></div>
+</div>
+
+<!-- ===== CAP 28 ===== -->
+<div id="c28" class="page">
+<span class="badge">Capítulo 28</span>
+<p class="pg-title">Desemprego</p>
+<p class="pg-sub">Como se mede, por que existe, e o que explica a taxa natural</p>
+
+<div class="sec"><p class="sec-label">Medição do desemprego</p>
+<div class="card"><p class="card-title">Categorias populacionais e fórmulas</p>
+<div class="formula">Força de trabalho = Empregados + Desempregados</div>
+<div class="formula">Taxa de desemprego = (Desempregados / Força de trabalho) × 100</div>
+<div class="formula">Taxa de participação = (Força de trabalho / Pop. adulta) × 100</div>
+<div class="tip"><strong>Quem é desempregado?</strong> Não empregado + disponível para trabalhar + PROCURANDO emprego nas últimas 4 semanas. Quem desistiu de procurar = trabalhador desalentado = fora da força de trabalho.</div></div>
+<div class="warn"><strong>Imperfeições da medição:</strong> subestima se ignoramos desalentados e trabalhadores de meio período involuntário. Superestima se inclui pessoas que dizem procurar mas não procuram de fato.</div></div>
+
+<div class="sec"><p class="sec-label">Taxa natural vs. desemprego cíclico</p>
+<div class="grid2">
+<div class="cmp"><h4>Taxa natural de desemprego</h4>Nível de longo prazo em torno do qual a taxa flutua. Existe mesmo quando a economia vai bem. Composta de desemprego friccional + estrutural.</div>
+<div class="cmp"><h4>Desemprego cíclico</h4>Desvio em relação à taxa natural. Associado às flutuações de curto prazo (recessão/expansão). Estudado nos capítulos seguintes.</div>
+</div></div>
+
+<div class="sec"><p class="sec-label">4 causas do desemprego de longo prazo</p>
+<div class="card"><p class="card-title">1. Busca de emprego — desemprego friccional</p>
+<p class="card-body">Leva tempo para trabalhadores encontrarem o emprego certo. Inevitável em economias dinâmicas. Intensificado por mudanças setoriais (ex: setor têxtil → tecnologia). Seguro-desemprego aumenta o desemprego friccional (reduz urgência de aceitar qualquer emprego).</p></div>
+<div class="card"><p class="card-title">2. Salário mínimo — desemprego estrutural</p>
+<p class="card-body">Quando o salário mínimo está acima do equilíbrio: oferta de mão de obra > demanda → excesso = desemprego. Afeta principalmente adolescentes e trabalhadores menos qualificados.</p></div>
+<div class="card"><p class="card-title">3. Sindicatos — poder de mercado no trabalho</p>
+<p class="card-body">Sindicatos negociam salários acima do equilíbrio para seus membros. Isso beneficia os que ficam empregados, mas causa desemprego entre os que ficam de fora. São um tipo de cartel de trabalhadores.</p>
+<div class="tip">Argumento a favor dos sindicatos: funcionam como contrapeso ao poder monopsônio das empresas e melhoram as condições de trabalho.</div></div>
+<div class="card"><p class="card-title">4. Salários de eficiência — escolha racional da empresa</p>
+<p class="card-body">Empresas pagam acima do equilíbrio voluntariamente porque salários mais altos aumentam a produtividade. Quatro mecanismos:</p>
+<ol class="steps">
+<li><strong>Saúde do trabalhador</strong> — salário maior → melhor nutrição → mais produtivo (mais relevante em países pobres)</li>
+<li><strong>Redução da rotatividade</strong> — trabalhadores satisfeitos ficam mais; empresa economiza em contratação e treinamento</li>
+<li><strong>Qualidade do trabalhador</strong> — salário alto atrai candidatos melhores (seleção adversa às avessas)</li>
+<li><strong>Esforço do trabalhador</strong> — trabalhadores que ganham mais têm mais a perder se demitidos → esforçam-se mais</li>
+</ol></div></div>
+</div>
+
+<!-- ===== CAP 29 ===== -->
+<div id="c29" class="page">
+<span class="badge">Capítulo 29 — PRINCIPAL</span>
+<p class="pg-title">O Sistema Monetário</p>
+<p class="pg-sub">O que é moeda, quem a controla e como os bancos criam dinheiro</p>
+
+<div class="sec"><p class="sec-label">3 funções da moeda — decorar na ordem</p>
+<div class="grid2">
+<div class="card"><p class="card-title">Meio de troca</p><p class="card-body" style="font-size:13px">Item aceito para pagar bens/serviços. Elimina a necessidade de coincidência dupla de desejos do escambo.</p></div>
+<div class="card"><p class="card-title">Unidade de conta</p><p class="card-body" style="font-size:13px">Padrão para cotar preços e registrar dívidas. A "régua" do valor econômico.</p></div>
+<div class="card" style="grid-column:1/-1"><p class="card-title">Reserva de valor</p><p class="card-body" style="font-size:13px">Transfere poder de compra do presente para o futuro. Outros ativos (imóveis, ações) também fazem isso com mais retorno — mas menos liquidez.</p></div>
+</div>
+<div class="tip"><strong>Macete MEU:</strong> <strong>M</strong>eio de troca, <strong>E</strong>xpressão de conta (unidade), res<strong>e</strong>rva de valor. Cartão de crédito = dívida, NÃO é moeda. Cartão de débito acessa depósito bancário = É parte da moeda.</div></div>
+
+<div class="sec"><p class="sec-label">Medidas da oferta de moeda</p>
+<div class="formula">M1 = Moeda corrente + Depósitos à vista + Cheques de viagem</div>
+<div class="formula">M2 = M1 + Poupança + Depósitos a prazo (pequenos) + Fundos do mercado monetário</div>
+<div class="tip"><strong>Regra:</strong> M2 > M1 sempre. M1 = o que você usa hoje para pagar. M2 = M1 + o que pode ser convertido em dinheiro rapidamente.</div></div>
+
+<div class="sec"><p class="sec-label">Os 3 instrumentos do Banco Central</p>
+<div class="grid2">
+<div class="card"><p class="card-title">1. Operações de mercado aberto ★ Principal instrumento</p>
+<p class="card-body" style="font-size:13px">BC <strong>compra</strong> títulos → injeta moeda → oferta ↑ → juros ↓. BC <strong>vende</strong> títulos → retira moeda → oferta ↓ → juros ↑.</p></div>
+<div class="card"><p class="card-title">2. Depósito compulsório</p>
+<p class="card-body" style="font-size:13px">% dos depósitos que os bancos devem manter em reserva. Compulsório ↑ → bancos emprestam menos → multiplicador ↓ → oferta ↓.</p></div>
+<div class="card" style="grid-column:1/-1"><p class="card-title">3. Taxa de redesconto (ou taxa de desconto)</p>
+<p class="card-body" style="font-size:13px">Juros que o BC cobra dos bancos ao emprestar para eles. Taxa ↑ → bancos tomam menos emprestado do BC → emprestam menos → oferta ↓. BC = "emprestador de última instância".</p></div>
+</div>
+<div class="tip"><strong>Macete:</strong> quer AUMENTAR oferta → compra títulos / reduz compulsório / reduz taxa de redesconto. Para DIMINUIR: o oposto de tudo.</div></div>
+
+<div class="sec"><p class="sec-label">Como os bancos criam dinheiro — reserva fracionária ★</p>
+<div class="card"><p class="card-title">O multiplicador monetário</p>
+<div class="formula">Multiplicador monetário = 1 / Taxa de reserva compulsória</div>
+<p class="card-body">Exemplo com compulsório de 20%: multiplicador = 5. Se BC injeta $100, sistema pode criar até $500 em depósitos.</p>
+<ol class="steps">
+<li>Banco 1 recebe $1.000. Reserva 20% = $200. Empresta $800.</li>
+<li>Banco 2 recebe $800. Reserva $160. Empresta $640.</li>
+<li>Banco 3 recebe $640. Reserva $128. Empresta $512.</li>
+<li>Sequência converge: total de depósitos = $1.000 × 5 = $5.000</li>
+</ol>
+<div class="warn">Na prática, o multiplicador é menor porque: bancos mantêm reservas excedentes e o público retém parte como moeda em espécie.</div></div></div>
+</div>
+
+<!-- ===== CAP 30 ===== -->
+<div id="c30" class="page">
+<span class="badge">Capítulo 30</span>
+<p class="pg-title">Crescimento da Moeda e Inflação</p>
+<p class="pg-sub">Por que os preços sobem e o que isso custa à sociedade</p>
+
+<div class="sec"><p class="sec-label">A equação quantitativa</p>
+<div class="formula" style="font-size:18px;font-weight:500">M × V = P × Y</div>
+<div class="grid2">
+<div><span class="tag tb">M</span> Quantidade de moeda</div>
+<div><span class="tag tg">V</span> Velocidade da moeda</div>
+<div><span class="tag ta">P</span> Nível de preços (deflator)</div>
+<div><span class="tag tp">Y</span> PIB real</div>
+</div>
+<div class="formula">V = (P × Y) / M  →  "Velocidade = valor nominal da produção / moeda"</div>
+<div class="tip"><strong>Teoria quantitativa:</strong> V é relativamente estável; Y é determinado por fatores reais no longo prazo. Portanto: M↑ → P↑. <em>"A inflação é sempre e em todo lugar um fenômeno monetário." — Friedman</em></div>
+<div class="formula">Taxa de inflação ≈ Taxa de crescimento de M − Taxa de crescimento de Y</div></div>
+
+<div class="sec"><p class="sec-label">Dicotomia clássica e neutralidade monetária</p>
+<div class="grid2">
+<div class="cmp"><h4>Variáveis nominais</h4>Medidas em R$: salário em reais, nível de preços, PIB nominal. <strong>São afetadas pela quantidade de moeda.</strong></div>
+<div class="cmp"><h4>Variáveis reais</h4>Medidas em unidades físicas: salário real, PIB real, taxa de juros real. <strong>NÃO são afetadas pela moeda no longo prazo.</strong></div>
+</div>
+<div class="card"><p class="card-title">Neutralidade monetária</p>
+<p class="card-body">Se M dobra → todos os preços dobram → salários nominais dobram → mas PIB real, emprego, salário real = inalterados. A moeda é como a régua: se você mudar a definição de "metro", as distâncias medidas mudam mas as distâncias reais não.</p>
+<div class="warn">Vale no <strong>longo prazo</strong>. No curto prazo, alterações monetárias TÊM efeitos reais — é o que estudaremos nos capítulos sobre flutuações.</div></div></div>
+
+<div class="sec"><p class="sec-label">Efeito Fisher — essencial</p>
+<div class="formula">Taxa de juros real = Taxa de juros nominal − Taxa de inflação</div>
+<div class="formula">Taxa de juros nominal = Taxa de juros real + Taxa de inflação esperada</div>
+<div class="card"><p class="card-body">O efeito Fisher diz que, quando a inflação esperada sobe 1pp, a taxa de juros nominal também sobe 1pp (relação 1:1) para manter a taxa real constante. Por isso países com alta inflação têm altas taxas nominais.</p>
+<div class="tip"><strong>Macete:</strong> banco anuncia 10%, inflação é 6% → taxa real = 4%. Se inflação vai a 9%, banco vai anunciar ~13% para manter seus 4% reais. Isso é o efeito Fisher.</div></div></div>
+
+<div class="sec"><p class="sec-label">Imposto inflacionário e hiperinflação</p>
+<div class="card"><p class="card-body">Quando o governo não consegue arrecadar via impostos normais, imprime moeda. Cada real em circulação perde valor → é como um imposto invisível sobre quem detém moeda. Quando usado em excesso causa <strong>hiperinflação</strong> (>50% ao mês, por convenção).</p>
+<div class="info">Padrão histórico: governo tem déficit grande → imprime moeda → inflação → mais impressão → hiperinflação. Termina quando o governo reforma as finanças.</div></div></div>
+
+<div class="sec"><p class="sec-label">Os 5 custos reais da inflação — decorar</p>
+<div class="card"><ol class="steps">
+<li><strong>Custo de sola de sapato:</strong> inflação = imposto sobre moeda → pessoas vão mais ao banco, mantêm menos cash → perda de tempo e conveniência</li>
+<li><strong>Custos de menu:</strong> empresas precisam atualizar preços com frequência → custo de reimprimir catálogos, etiquetas, cardápios</li>
+<li><strong>Variabilidade dos preços relativos:</strong> empresas mudam preços em momentos diferentes → distorce sinais de preço → má alocação de recursos</li>
+<li><strong>Distorções tributárias:</strong> código tributário não corrige pela inflação → ganhos de capital ilusórios são tributados → penaliza poupança</li>
+<li><strong>Confusão e inconveniência:</strong> a unidade de conta perde significado → dificulta contratos e planejamento de longo prazo</li>
+</ol>
+<div class="danger"><strong>A falácia mais cobrada em prova:</strong> "Inflação reduz o poder aquisitivo" parece óbvio mas é uma <em>falácia</em>. Quando preços sobem, rendas nominais também sobem. Os custos REAIS são os 5 acima, não uma queda direta no padrão de vida.</div></div></div>
+</div>
+
+<!-- ===== QUESTÕES DO LIVRO ===== -->
+<div id="qbook" class="page">
+<p class="pg-title">Questões do Livro — Mankiw</p>
+<p class="pg-sub">Questões para revisão e problemas selecionados de cada capítulo, com gabarito</p>
+
+<div class="sec"><p class="sec-label">Capítulo 23 — PIB</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 1</span>
+<span class="q-text">Em 2010 a economia produziu 100 pães a $2 cada. Em 2011 produziu 200 pães a $3 cada. Calcule PIB nominal, real e deflator em cada ano (base 2010). Qual a variação percentual de cada?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+<strong>2010:</strong> PIB nominal = 100×$2 = $200. PIB real (base 2010) = 100×$2 = $200. Deflator = (200/200)×100 = 100.<br>
+<strong>2011:</strong> PIB nominal = 200×$3 = $600. PIB real = 200×$2 = $400 (quantidade de 2011 × preços de 2010). Deflator = (600/400)×100 = 150.<br>
+<strong>Variações:</strong> PIB nominal +200%. PIB real +100%. Deflator +50%.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 2</span>
+<span class="q-text">Enumere os 4 componentes do PIB com um exemplo de cada.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+C (Consumo): compra de supermercado pela família.<br>
+I (Investimento): empresa compra nova máquina; família compra casa nova; empresa aumenta estoque.<br>
+G (Compras do governo): contrato de construção de escola pública; salário de funcionário público.<br>
+EL (Exportações líquidas): exportação de soja menos importação de petróleo.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 5</span>
+<span class="q-text">Agricultor vende trigo a padeiro por $2. Padeiro faz pão e vende por $3. Qual a contribuição ao PIB?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Apenas <strong>$3</strong> — o valor do bem final (pão). O trigo ($2) é bem intermediário e seu valor já está incluído no pão. Contar os $2 + $3 = $5 seria dupla contagem.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">PA 2</span>
+<span class="q-text">Qual componente do PIB é afetado por: (a) família compra geladeira, (b) tia Jane compra casa nova, (c) Ford vende Mustang de seus estoques, (d) você compra pizza, (e) Califórnia repavimenta autoestrada?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+(a) C — consumo de bem durável familiar.<br>
+(b) I — compra de imóvel residencial é investimento (não consumo).<br>
+(c) I cai (estoques diminuem) e C sobe — efeito líquido no PIB corrente = zero (o carro já foi contado quando fabricado).<br>
+(d) C — gasto com serviço de alimentação.<br>
+(e) G — compras do governo estadual (obra de infraestrutura).
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 24 — IPC</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 1</span>
+<span class="q-text">Descreva os 3 problemas que fazem do IPC uma medida imperfeita do custo de vida.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+1. <strong>Viés de substituição:</strong> quando preços relativos mudam, consumidores substituem bens caros por mais baratos. IPC com cesta fixa não capta isso → superestima o custo.<br>
+2. <strong>Introdução de novos bens:</strong> novos produtos aumentam o bem-estar mas não entram imediatamente na cesta → o índice não captura o ganho de utilidade.<br>
+3. <strong>Variações de qualidade não mensuradas:</strong> quando um bem fica mais caro mas melhor, o IPC registra inflação mas parte do preço reflete melhoria real.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 2</span>
+<span class="q-text">Alta de 10% no preço do frango ou 10% no preço do caviar — qual tem maior efeito no IPC?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+O frango. O IPC pondera os bens pelo peso que ocupam na cesta do consumidor típico. Frango é comprado em quantidade muito maior que caviar → peso muito maior → impacto muito maior no IPC. A variação percentual igual não implica impacto igual.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 5</span>
+<span class="q-text">Se o preço de um submarino da Marinha aumentar, o que será mais afetado: IPC ou deflator do PIB? Por quê?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+O <strong>deflator do PIB</strong>. Submarinos militares são bens comprados pelo governo (componente G do PIB), portanto entram no cálculo do deflator. Mas consumidores típicos não compram submarinos, então esse bem não está na cesta do IPC.
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 25 — Produção</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 1</span>
+<span class="q-text">Enumere e descreva os 4 determinantes da produtividade.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+1. <strong>Capital físico (K):</strong> ferramentas, máquinas e equipamentos por trabalhador. Quanto mais K/L, maior a produção por hora de trabalho.<br>
+2. <strong>Capital humano (H):</strong> conhecimento e habilidades adquiridos por educação e treinamento. É produzido, acumula-se e eleva a produtividade.<br>
+3. <strong>Recursos naturais (N):</strong> insumos da natureza (terra, minérios, petróleo). Renováveis ou não renováveis. Importantes mas não determinantes — Japão é rico com poucos recursos.<br>
+4. <strong>Conhecimento tecnológico (A):</strong> compreensão da sociedade sobre como combinar insumos de forma eficiente. Pode ser público (rotação de culturas) ou privado (patente).
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 4</span>
+<span class="q-text">Em que sentido um diploma universitário é uma forma de capital?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Um diploma é capital humano (H). Assim como o capital físico, ele: (1) é produzido (exige investimento de tempo e dinheiro), (2) acumula-se ao longo do tempo, (3) aumenta a capacidade de produção futura (eleva a produtividade do trabalhador) e (4) se deprecia (habilidades podem ficar desatualizadas). A diferença é que capital físico é tangível; capital humano é intangível e reside no indivíduo.
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 26 — Poupança e Investimento</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 3</span>
+<span class="q-text">O que é investimento? Como se relaciona com a poupança nacional?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Na macroeconomia, <strong>investimento</strong> é a compra de bens de capital novos: equipamentos, edificações, estoques e residências novas. NÃO é a aplicação financeira em ações ou títulos — isso é poupança.<br>
+Relação: da identidade Y−C−G = I → <strong>S = I</strong>. A poupança nacional financia o investimento nacional. O sistema financeiro coordena essa transferência, direcionando fundos de quem poupa para quem investe.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 5</span>
+<span class="q-text">O que é um déficit orçamentário do governo? Como afeta taxas de juros, investimento e crescimento?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Déficit = G > T (governo gasta mais do que arrecada). Efeito em cadeia:<br>
+1. Poupança pública (T−G) fica negativa → poupança nacional cai → oferta de fundos para empréstimos diminui.<br>
+2. Com menos oferta → taxa de juros real sobe.<br>
+3. Juros mais altos encarecem o investimento → investimento privado cai (<em>crowding out</em>).<br>
+4. Menos investimento → menos acúmulo de capital → crescimento econômico mais lento no longo prazo.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">PA 3</span>
+<span class="q-text">O que é poupança e o que é investimento? Classifique: (a) família faz hipoteca e compra casa nova; (b) você usa $200 do salário para comprar ações da AT&T; (c) colega deposita $100 no banco; (d) você toma $1.000 emprestado para comprar carro para o negócio.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+(a) <strong>Investimento</strong> — compra de imóvel residencial novo é classificada como investimento nas contas nacionais.<br>
+(b) <strong>Poupança</strong> — comprar ações é uma forma de aplicar poupança no mercado financeiro; não é investimento macroeconômico (a empresa já existia).<br>
+(c) <strong>Poupança</strong> — depósito bancário é poupança privada do colega.<br>
+(d) <strong>Investimento</strong> — compra de bem de capital (carro) para uso produtivo em um negócio.
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 27 — Finanças</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 2</span>
+<span class="q-text">Taxa de juros é 7%. Compare: $200 a receber em 10 anos vs. $300 a receber em 20 anos.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+VP dos $200 em 10 anos: $200/(1,07)¹⁰ = $200/1,967 ≈ <strong>$101,67</strong><br>
+VP dos $300 em 20 anos: $300/(1,07)²⁰ = $300/3,87 ≈ <strong>$77,51</strong><br>
+Os $200 em 10 anos valem mais hoje. Embora $300 seja um valor maior, o tempo de espera adicional (mais 10 anos) desconta mais fortemente o valor.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 4</span>
+<span class="q-text">O que é diversificação? Um acionista diversifica mais passando de 1 para 10 ações ou de 100 para 120?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Diversificação é reduzir o risco distribuindo investimentos em muitos ativos não correlacionados, em vez de concentrar em um só.<br>
+Ganho maior: passar de <strong>1 para 10</strong> ações. O gráfico do livro mostra que o risco cai muito nos primeiros 10-20 ativos. De 100 para 120, o ganho marginal é praticamente nulo — o risco específico da empresa já foi quase totalmente eliminado; o que resta é o risco de mercado, irredutível por diversificação.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 5</span>
+<span class="q-text">Descreva a hipótese dos mercados eficientes e dê uma evidência consistente com ela.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+A HME afirma que o preço de uma ação reflete toda a informação publicamente disponível. Como resultado, os preços seguem um "passeio aleatório" — suas variações futuras são imprevisíveis, pois qualquer informação já está incorporada no preço atual.<br>
+<strong>Evidência:</strong> fundos de índice (que simplesmente replicam o mercado) tendem a ter desempenho superior ao de fundos com gestão ativa após descontar as taxas de administração, sugerindo que gestores profissionais não conseguem consistentemente "bater o mercado".
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 28 — Desemprego</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 2</span>
+<span class="q-text">Quais as 3 categorias do BLS? Como se calculam força de trabalho, taxa de desemprego e taxa de participação?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Categorias: <strong>Empregados</strong> (trabalhando), <strong>Desempregados</strong> (sem emprego mas procurando), <strong>Fora da força de trabalho</strong> (não procuram).<br>
+Força de trabalho = Empregados + Desempregados.<br>
+Taxa de desemprego = (Desempregados / Força de trabalho) × 100.<br>
+Taxa de participação = (Força de trabalho / Pop. adulta) × 100.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 4</span>
+<span class="q-text">Por que o desemprego friccional é inevitável? Como o governo pode reduzi-lo?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+É inevitável porque a economia está sempre mudando: setores crescem e encolhem, empresas nascem e morrem, trabalhadores buscam empregos que se adequem melhor às suas habilidades. Cada transição cria um período de busca. Em uma economia dinâmica, isso é sinal de saúde, não de falha.<br>
+Para reduzir: <strong>agências de emprego públicas</strong> (melhorar informação sobre vagas); <strong>programas de requalificação</strong> (ajudar trabalhadores de setores em declínio); <strong>reduzir a duração do seguro-desemprego</strong> (aumenta urgência na busca, mas com custo social).
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 6</span>
+<span class="q-text">Explique 4 maneiras pelas quais uma empresa pode aumentar seus lucros pagando salários mais altos.</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+1. <strong>Saúde:</strong> salários maiores → melhor nutrição e saúde → trabalhadores mais produtivos.<br>
+2. <strong>Redução da rotatividade:</strong> trabalhadores satisfeitos ficam mais tempo → empresa economiza em contratação e treinamento.<br>
+3. <strong>Atração de melhor qualidade:</strong> salário alto atrai candidatos mais competentes → força de trabalho mais produtiva (combate seleção adversa).<br>
+4. <strong>Incentivo ao esforço:</strong> trabalhadores que ganham bem têm muito a perder se demitidos → se esforçam mais e negligenciam menos (combate risco moral).
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 29 — Sistema Monetário</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 5</span>
+<span class="q-text">Por que os bancos não mantêm reservas de 100%? Como as reservas se relacionam com a criação de moeda?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Bancos não mantêm 100% porque ganham juros emprestando. Como os depositantes raramente retiram tudo de uma vez, basta guardar uma fração (reserva compulsória + excedente por precaução) e emprestar o resto.<br>
+Relação: quanto menor a taxa de reserva, maior o multiplicador bancário (1/taxa de reserva), e maior a criação de moeda pelo sistema. Com 10% de reserva, $1.000 inicial pode gerar até $10.000 em depósitos totais.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 6</span>
+<span class="q-text">Se o Fed quiser aumentar a oferta de moeda por operações de mercado aberto, o que terá de fazer?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+O Fed <strong>compra</strong> títulos do governo dos bancos e do público. Ao pagar por esses títulos, o Fed cria novos dólares que entram no sistema bancário. Esses dólares adicionais nas reservas dos bancos permitem mais empréstimos e expansão dos depósitos pelo efeito multiplicador, aumentando a oferta de moeda (M1 e M2).
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">PA 5</span>
+<span class="q-text">O Fed compra títulos de $10 milhões. Com reserva de 10%, qual é o maior e o menor aumento possível na oferta de moeda?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+<strong>Maior aumento possível:</strong> $10 mi × (1/0,10) = <strong>$100 mi</strong>. Isso ocorre se os bancos emprestarem tudo o que é possível (reservas exatamente no mínimo) e o público mantiver todo o dinheiro em depósitos bancários.<br>
+<strong>Menor aumento possível:</strong> <strong>$10 mi</strong>. Se o banco receber o dinheiro e mantê-lo integralmente como reserva excedente (sem emprestar), nenhum efeito multiplicador ocorre.
+</div></div>
+</div>
+
+<div class="sec"><p class="sec-label">Capítulo 30 — Inflação</p>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 1</span>
+<span class="q-text">De acordo com a teoria quantitativa da moeda, qual é o efeito de um aumento na quantidade de moeda?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Usando MV = PY: se V é estável e Y é determinado por fatores reais (capital, trabalho, tecnologia), um aumento em M deve se refletir em um aumento proporcional em P (nível de preços). Assim, maior quantidade de moeda → maior inflação. Não afeta variáveis reais no longo prazo (neutralidade monetária).
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">QR 4</span>
+<span class="q-text">De acordo com o efeito Fisher, como um aumento na inflação afeta a taxa de juros real e a nominal?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+Se a inflação esperada sobe em 1pp: a taxa de juros <strong>nominal sobe em 1pp</strong> (ajuste 1:1 pelo efeito Fisher) e a taxa <strong>real permanece inalterada</strong>. Isso porque taxa real = taxa nominal − inflação. O ajuste da taxa nominal preserva o retorno real dos emprestadores.
+</div></div>
+
+<div class="q-item">
+<div class="q-head" onclick="tog(this)">
+<span class="q-num">PA 2</span>
+<span class="q-text">Oferta de moeda = $500 bi, PIB nominal = $10 tri, PIB real = $5 tri. (a) Qual o nível de preços e a velocidade? (b) Se V constante e produção cresce 5%, o que acontece com PIB nominal e preços se M fica constante?</span>
+<span class="q-arrow">▾</span></div>
+<div class="q-body">
+(a) Nível de preços (deflator) = PIB nominal / PIB real = $10 tri / $5 tri = <strong>2</strong>. Velocidade: V = (P×Y)/M = $10 tri / $500 bi = <strong>20</strong>.<br>
+(b) Com M constante e V = 20: P×Y deve permanecer em $10 tri. Se Y cresce 5% → Y = $5,25 tri. Então P = $10 tri / $5,25 tri ≈ <strong>1,905</strong> → deflator cai de 2 para ~1,90. PIB nominal permanece $10 tri (pois M×V = constante). Resultado: <strong>deflação de ~5%</strong>.
+</div></div>
+</div>
+</div>
+
+<!-- ===== SIMULADO 1 ===== -->
+<div id="sim1" class="page">
+<p class="pg-title">Simulado 1 — Capítulos 23, 24, 25</p>
+<p class="pg-sub">7 múltipla escolha · 4 verdadeiro/falso · 2 discursivas<br><em>Responda sem consultar, depois clique em "Mostrar gabarito"</em></p>
+
+<h3>Parte A — Múltipla escolha</h3>
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 23 | Difícil</div>
+<div class="quiz-stem">1. A empresa Ford vende um carro por $40.000 de seus estoques acumulados no ano anterior. O efeito sobre o PIB do <em>ano corrente</em> é:</div>
+<div class="opt" onclick="sel(this,'sim1','1','b')"><span class="opt-letter">a)</span> PIB sobe $40.000, pois é uma venda registrada este ano</div>
+<div class="opt" onclick="sel(this,'sim1','1','b')"><span class="opt-letter">b)</span> O investimento (estoques) cai $40.000 e o consumo sobe $40.000 — efeito líquido zero no PIB</div>
+<div class="opt" onclick="sel(this,'sim1','1','b')"><span class="opt-letter">c)</span> O componente G sobe $40.000, pois envolve uma empresa nacional</div>
+<div class="opt" onclick="sel(this,'sim1','1','b')"><span class="opt-letter">d)</span> O componente EL sobe, pois o carro será usado para exportar</div>
+<div class="q-reveal" id="sim1_1_rev"><strong>✓ Resposta: b)</strong> O carro foi produzido e contado no PIB do ano anterior (como investimento em estoque). Quando vendido, o estoque cai (I↓) mas o consumo sobe (C↑) pelo mesmo valor. Efeito líquido no PIB corrente = zero.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 24 | Médio</div>
+<div class="quiz-stem">2. A taxa de inflação medida pelo IPC tenderia a ser maior ou menor que a "verdadeira" inflação? Por quê? A alternativa que melhor responde é:</div>
+<div class="opt" onclick="sel(this,'sim1','2','a')"><span class="opt-letter">a)</span> Maior — por viés de substituição, novos bens e qualidade não mensurada</div>
+<div class="opt" onclick="sel(this,'sim1','2','a')"><span class="opt-letter">b)</span> Menor — porque o IPC usa cesta fixa que nunca muda</div>
+<div class="opt" onclick="sel(this,'sim1','2','a')"><span class="opt-letter">c)</span> Igual — o BLS compensa todos os vieses na metodologia</div>
+<div class="opt" onclick="sel(this,'sim1','2','a')"><span class="opt-letter">d)</span> Maior — porque inclui bens importados que o deflator exclui</div>
+<div class="q-reveal" id="sim1_2_rev"><strong>✓ Resposta: a)</strong> Os três vieses (substituição, novos bens, qualidade) fazem o IPC superestimar a inflação real. O fato de incluir importados é verdade mas não é a razão do viés.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 25 | Difícil</div>
+<div class="quiz-stem">3. Uma função de produção tem retornos constantes de escala. O país A dobra apenas sua força de trabalho, sem alterar K, H ou N. O que acontece com a produção?</div>
+<div class="opt" onclick="sel(this,'sim1','3','c')"><span class="opt-letter">a)</span> A produção dobra, pois a regra de retornos constantes se aplica</div>
+<div class="opt" onclick="sel(this,'sim1','3','c')"><span class="opt-letter">b)</span> A produção permanece constante, pois L não é o fator limitante</div>
+<div class="opt" onclick="sel(this,'sim1','3','c')"><span class="opt-letter">c)</span> A produção aumenta, mas menos que o dobro, pois só L cresceu e os demais insumos estão fixos</div>
+<div class="opt" onclick="sel(this,'sim1','3','c')"><span class="opt-letter">d)</span> A produção mais que dobra por ganhos de especialização</div>
+<div class="q-reveal" id="sim1_3_rev"><strong>✓ Resposta: c)</strong> Retornos constantes de escala valem quando TODOS os insumos crescem proporcionalmente. Só L cresce → há rendimentos decrescentes do trabalho (mais trabalhadores dividindo o mesmo capital) → produção sobe menos que o dobro.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 23-24 | Médio</div>
+<div class="quiz-stem">4. O PIB nominal é $1.200 bilhões e o deflator do PIB é 150. O PIB real em bilhões é:</div>
+<div class="opt" onclick="sel(this,'sim1','4','d')"><span class="opt-letter">a)</span> $1.800</div>
+<div class="opt" onclick="sel(this,'sim1','4','d')"><span class="opt-letter">b)</span> $1.350</div>
+<div class="opt" onclick="sel(this,'sim1','4','d')"><span class="opt-letter">c)</span> $1.050</div>
+<div class="opt" onclick="sel(this,'sim1','4','d')"><span class="opt-letter">d)</span> $800</div>
+<div class="q-reveal" id="sim1_4_rev"><strong>✓ Resposta: d)</strong> PIB real = (PIB nominal / Deflator) × 100 = (1200/150) × 100 = $800 bilhões. Atenção: não é $1200 × 150, que seria um erro comum de ordem de grandeza.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 25 | Médio</div>
+<div class="quiz-stem">5. Qual das alternativas descreve CORRETAMENTE a diferença entre capital humano (H) e conhecimento tecnológico (A) na função de produção?</div>
+<div class="opt" onclick="sel(this,'sim1','5','b')"><span class="opt-letter">a)</span> H é público e gratuito; A é privado e patenteado</div>
+<div class="opt" onclick="sel(this,'sim1','5','b')"><span class="opt-letter">b)</span> A é o saber da sociedade sobre como produzir; H é o investimento em competências dos indivíduos</div>
+<div class="opt" onclick="sel(this,'sim1','5','b')"><span class="opt-letter">c)</span> H e A são sinônimos na função Y = AF(L,K,H,N)</div>
+<div class="opt" onclick="sel(this,'sim1','5','b')"><span class="opt-letter">d)</span> H não afeta a produtividade; apenas A e K importam</div>
+<div class="q-reveal" id="sim1_5_rev"><strong>✓ Resposta: b)</strong> A é o conhecimento da sociedade (como o conteúdo de um livro técnico); H é o investimento que cada pessoa faz para absorver esse conhecimento (tempo estudando). A pode ser público ou privado.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 23 | Médio</div>
+<div class="quiz-stem">6. Uma faxineira contrata outra pessoa para limpar sua própria casa por $200. Qual é o efeito no PIB em relação a ela mesma limpar a casa?</div>
+<div class="opt" onclick="sel(this,'sim1','6','a')"><span class="opt-letter">a)</span> O PIB aumenta $200, pois a transação agora passa pelo mercado</div>
+<div class="opt" onclick="sel(this,'sim1','6','a')"><span class="opt-letter">b)</span> O PIB não muda, pois a mesma tarefa é realizada de qualquer forma</div>
+<div class="opt" onclick="sel(this,'sim1','6','a')"><span class="opt-letter">c)</span> O PIB cai, pois há deslocamento de trabalho informal para formal</div>
+<div class="opt" onclick="sel(this,'sim1','6','a')"><span class="opt-letter">d)</span> O PIB aumenta $400, pois conta o trabalho dos dois lados</div>
+<div class="q-reveal" id="sim1_6_rev"><strong>✓ Resposta: a)</strong> Quando ela mesma limpa a casa, não há transação de mercado → não conta no PIB. Quando paga $200 a outro, isso é um serviço comprado e vendido no mercado → conta no PIB. Mesma atividade econômica, mas o mercado a torna mensurável.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 24 | Difícil</div>
+<div class="quiz-stem">7. Em 2020, o IPC era 200. Em 2022, o IPC é 240. Um salário de $3.000 em 2020 manteve o mesmo poder de compra em 2022 se o salário nominal em 2022 for:</div>
+<div class="opt" onclick="sel(this,'sim1','7','c')"><span class="opt-letter">a)</span> $3.120</div>
+<div class="opt" onclick="sel(this,'sim1','7','c')"><span class="opt-letter">b)</span> $2.500</div>
+<div class="opt" onclick="sel(this,'sim1','7','c')"><span class="opt-letter">c)</span> $3.600</div>
+<div class="opt" onclick="sel(this,'sim1','7','c')"><span class="opt-letter">d)</span> $3.240</div>
+<div class="q-reveal" id="sim1_7_rev"><strong>✓ Resposta: c)</strong> Salário corrigido = $3.000 × (IPC 2022 / IPC 2020) = $3.000 × (240/200) = $3.000 × 1,2 = $3.600. Inflação acumulada = 20% → salário precisa subir 20% para manter poder de compra.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte B — Verdadeiro ou Falso</h3>
+
+<div class="quiz-q">
+<div class="quiz-stem">8. "Se o PIB nominal cresceu 10% em um ano, o padrão de vida da população necessariamente melhorou."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim1','8','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim1','8','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim1_8_rev"><strong>✓ FALSO.</strong> PIB nominal pode crescer por inflação sem nenhum aumento real na produção. Somente o crescimento do PIB real indica melhora no padrão de vida. Se inflação = 10% e PIB nominal cresceu 10%, o PIB real ficou estável.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">9. "O deflator do PIB sobe quando o preço de produtos importados aumenta, pois eles entram nas contas nacionais."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim1','9','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim1','9','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim1_9_rev"><strong>✓ FALSO.</strong> O deflator do PIB mede apenas os preços dos bens e serviços PRODUZIDOS domesticamente. Importados não entram no PIB — são subtraídos no cálculo de EL. Já o IPC inclui importados (compõem a cesta do consumidor).</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">10. "A cesta de bens do IPC é atualizada a cada mês para refletir os novos hábitos de consumo dos brasileiros."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim1','10','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim1','10','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim1_10_rev"><strong>✓ FALSO.</strong> A cesta do IPC é <em>fixa</em> — definida por pesquisa periódica e mantida por anos. Essa rigidez é exatamente o que causa o viés de substituição: quando preços relativos mudam, consumidores substituem bens, mas o IPC não capta isso.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">11. "Na função Y = AF(L,K,H,N), dobrar apenas A (tecnologia) sem mudar nenhum insumo físico dobra a produção."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim1','11','V')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim1','11','V')">Falso</button>
+</div>
+<div class="q-reveal" id="sim1_11_rev"><strong>✓ VERDADEIRO.</strong> A é um multiplicador que escala toda a função F(). Se A dobra, a produção com os mesmos insumos físicos dobra. Isso é diferente dos retornos constantes de escala, que exigem dobrar L, K, H e N simultaneamente.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte C — Discursivas</h3>
+
+<div class="disc-q">
+<div class="disc-stem">12. Com base na função de produção Y/L = A·F(K/L, H/L, N/L), explique por que dois países com o mesmo tamanho da força de trabalho podem ter padrões de vida muito diferentes. Use pelo menos dois determinantes em sua resposta. (Máx. 10 linhas)</div>
+<button class="btn-outline" onclick="revDisc('sim1_12_g')">Mostrar gabarito orientador</button>
+<div class="disc-gabarito" id="sim1_12_g">
+Resposta orientadora: Dois países com o mesmo L podem ter Y/L muito diferentes devido a diferenças em:<br>
+(1) <strong>Tecnologia (A):</strong> países com técnicas mais avançadas produzem mais com os mesmos insumos. Ex: rotações de cultura no agronegócio × plantio rudimentar.<br>
+(2) <strong>Capital físico por trabalhador (K/L):</strong> mais máquinas e infraestrutura por trabalhador → mais produtivo. Ex: agricultor com trator vs. enxada.<br>
+(3) <strong>Capital humano por trabalhador (H/L):</strong> mais educação → maior produtividade. Ex: engenheiro qualificado vs. trabalhador sem formação.<br>
+A combinação desses fatores explica por que a renda média dos EUA é ~8× a da Índia.
+</div></div>
+
+<div class="disc-q">
+<div class="disc-stem">13. Um país registra PIB nominal de R$3.000 bi em 2021 (deflator=100) e R$3.900 bi em 2022 (deflator=120). Calcule: (a) o PIB real em cada ano, (b) a taxa de crescimento real da produção, (c) a taxa de inflação pelo deflator, e (d) qual parcela do crescimento do PIB nominal foi real e qual foi inflacionária.</div>
+<button class="btn-outline" onclick="revDisc('sim1_13_g')">Mostrar gabarito</button>
+<div class="disc-gabarito" id="sim1_13_g">
+(a) PIB real 2021 = (3000/100)×100 = R$3.000 bi. PIB real 2022 = (3900/120)×100 = R$3.250 bi.<br>
+(b) Crescimento real = (3250−3000)/3000 = 8,33%.<br>
+(c) Taxa de inflação = (120−100)/100 = 20%.<br>
+(d) O PIB nominal cresceu R$900 bi (+30%). Desse crescimento: R$250 bi foram reais (mais produção) e R$650 bi foram inflacionários (preços mais altos). Verificação: crescimento nominal ≈ crescimento real + inflação ≈ 8,33% + 20% ≈ 28,3% (pequena diferença por aproximação).
+</div></div>
+
+<div class="quiz-actions">
+<button class="btn-primary" onclick="revAll('sim1')">Mostrar todos os gabaritos</button>
+<button class="btn-outline" onclick="location.reload()">Reiniciar</button>
+</div>
+</div>
+
+<!-- ===== SIMULADO 2 ===== -->
+<div id="sim2" class="page">
+<p class="pg-title">Simulado 2 — Capítulos 26, 27, 28</p>
+<p class="pg-sub">7 múltipla escolha · 4 verdadeiro/falso · 2 discursivas</p>
+
+<h3>Parte A — Múltipla escolha</h3>
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 26 | Difícil</div>
+<div class="quiz-stem">1. O governo aumenta seus gastos sem elevar impostos (déficit). No mercado de fundos para empréstimos, o efeito CORRETO é:</div>
+<div class="opt" onclick="sel(this,'sim2','1','b')"><span class="opt-letter">a)</span> A oferta de fundos aumenta porque o governo injeta dinheiro na economia</div>
+<div class="opt" onclick="sel(this,'sim2','1','b')"><span class="opt-letter">b)</span> A oferta de fundos cai, a taxa de juros real sobe e o investimento privado é reduzido (crowding out)</div>
+<div class="opt" onclick="sel(this,'sim2','1','b')"><span class="opt-letter">c)</span> A demanda por fundos cai, pois o governo financia com emissão de moeda</div>
+<div class="opt" onclick="sel(this,'sim2','1','b')"><span class="opt-letter">d)</span> A taxa de juros cai, estimulando tanto o consumo quanto o investimento</div>
+<div class="q-reveal" id="sim2_1_rev"><strong>✓ Resposta: b)</strong> Déficit → poupança pública (T−G) fica negativa → S nacional cai → oferta no mercado de fundos↓ → curva de oferta desloca à esquerda → juros reais sobem → investimento privado cai (crowding out).</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 27 | Médio</div>
+<div class="quiz-stem">2. A taxa de juros anual é 5%. O valor presente de $1.000 a receber em 2 anos é aproximadamente:</div>
+<div class="opt" onclick="sel(this,'sim2','2','c')"><span class="opt-letter">a)</span> $950</div>
+<div class="opt" onclick="sel(this,'sim2','2','c')"><span class="opt-letter">b)</span> $1.100</div>
+<div class="opt" onclick="sel(this,'sim2','2','c')"><span class="opt-letter">c)</span> $907</div>
+<div class="opt" onclick="sel(this,'sim2','2','c')"><span class="opt-letter">d)</span> $1.050</div>
+<div class="q-reveal" id="sim2_2_rev"><strong>✓ Resposta: c)</strong> VP = $1000 / (1,05)² = $1000 / 1,1025 ≈ $907. Atenção: a opção $950 = $1000/(1,05)¹ seria para 1 ano. Para 2 anos, desconta-se duas vezes.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 28 | Difícil</div>
+<div class="quiz-stem">3. Uma empresa paga salários 30% acima do mercado voluntariamente, mesmo sem pressão sindical ou salário mínimo. A melhor explicação teórica é:</div>
+<div class="opt" onclick="sel(this,'sim2','3','d')"><span class="opt-letter">a)</span> A empresa é altruísta e quer melhorar o bem-estar social</div>
+<div class="opt" onclick="sel(this,'sim2','3','d')"><span class="opt-letter">b)</span> A empresa teme que o governo aumente o salário mínimo no futuro</div>
+<div class="opt" onclick="sel(this,'sim2','3','d')"><span class="opt-letter">c)</span> A empresa quer evitar a formação de um sindicato</div>
+<div class="opt" onclick="sel(this,'sim2','3','d')"><span class="opt-letter">d)</span> Salários de eficiência — salários mais altos aumentam produtividade, reduzem rotatividade e atraem trabalhadores melhores</div>
+<div class="q-reveal" id="sim2_3_rev"><strong>✓ Resposta: d)</strong> A teoria dos salários de eficiência explica por que empresas racionais maximizadoras de lucro podem querer pagar acima do equilíbrio: o aumento na produtividade, qualidade e retenção compensa o custo maior.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 26 | Médio</div>
+<div class="quiz-stem">4. Seu amigo usa suas economias para comprar um apartamento para alugar. Na linguagem dos macroeconomistas:</div>
+<div class="opt" onclick="sel(this,'sim2','4','a')"><span class="opt-letter">a)</span> Ele está tanto poupando quanto investindo — as duas coisas ao mesmo tempo</div>
+<div class="opt" onclick="sel(this,'sim2','4','a')"><span class="opt-letter">b)</span> Ele está apenas poupando; imóveis são apenas reserva de valor, não investimento</div>
+<div class="opt" onclick="sel(this,'sim2','4','a')"><span class="opt-letter">c)</span> Ele está apenas investindo; poupança só existe quando o dinheiro vai para banco</div>
+<div class="opt" onclick="sel(this,'sim2','4','a')"><span class="opt-letter">d)</span> Ele não está fazendo nenhum dos dois pois é compra de bem usado</div>
+<div class="q-reveal" id="sim2_4_rev"><strong>✓ Resposta: a)</strong> Na macroeconomia, compra de imóvel (novo!) = investimento residencial. Ele usou poupança prévia para financiá-lo. Portanto a poupança pessoal financiou o investimento — ele fez os dois. (Se for apartamento usado, o caso é diferente — não gera novo investimento agregado.)</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 27 | Difícil</div>
+<div class="quiz-stem">5. De acordo com a hipótese dos mercados eficientes, um analista que descobre uma informação pública positiva sobre a empresa XYZ deveria esperar que o preço da ação:</div>
+<div class="opt" onclick="sel(this,'sim2','5','c')"><span class="opt-letter">a)</span> Suba gradualmente nos próximos meses, à medida que o mercado absorve a informação</div>
+<div class="opt" onclick="sel(this,'sim2','5','c')"><span class="opt-letter">b)</span> Permaneça abaixo do valor justo por mais algumas semanas</div>
+<div class="opt" onclick="sel(this,'sim2','5','c')"><span class="opt-letter">c)</span> Já tenha se ajustado imediatamente ao novo valor — não há mais ganho a explorar</div>
+<div class="opt" onclick="sel(this,'sim2','5','c')"><span class="opt-letter">d)</span> Ainda não tenha refletido a informação, criando oportunidade de compra</div>
+<div class="q-reveal" id="sim2_5_rev"><strong>✓ Resposta: c)</strong> Pela HME, informação pública é incorporada instantaneamente. Se a informação é pública, milhares de investidores já a processaram e negociaram com base nela — o preço já ajustou.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 28 | Médio</div>
+<div class="quiz-stem">6. Um funcionário de uma fábrica de CDs perde o emprego porque o streaming digital tornou o produto obsoleto. Esse desemprego é classificado como:</div>
+<div class="opt" onclick="sel(this,'sim2','6','b')"><span class="opt-letter">a)</span> Friccional — é apenas uma questão de tempo para encontrar outro emprego no mesmo setor</div>
+<div class="opt" onclick="sel(this,'sim2','6','b')"><span class="opt-letter">b)</span> Estrutural — há desajuste entre as habilidades do trabalhador e as demandas do mercado de trabalho</div>
+<div class="opt" onclick="sel(this,'sim2','6','b')"><span class="opt-letter">c)</span> Cíclico — associado à recessão econômica de curto prazo</div>
+<div class="opt" onclick="sel(this,'sim2','6','b')"><span class="opt-letter">d)</span> Voluntário — o trabalhador poderia ter antecipado a mudança tecnológica</div>
+<div class="q-reveal" id="sim2_6_rev"><strong>✓ Resposta: b)</strong> Desemprego estrutural surge quando as habilidades do trabalhador não se encaixam nas vagas disponíveis — frequentemente por mudanças tecnológicas ou setoriais. É de longo prazo e exige requalificação.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 26 | Médio</div>
+<div class="quiz-stem">7. A poupança nacional (S) de uma economia fechada é $500 bi. Qual das afirmações é necessariamente verdadeira?</div>
+<div class="opt" onclick="sel(this,'sim2','7','d')"><span class="opt-letter">a)</span> O consumo das famílias é $500 bi</div>
+<div class="opt" onclick="sel(this,'sim2','7','d')"><span class="opt-letter">b)</span> O governo tem superávit orçamentário de $500 bi</div>
+<div class="opt" onclick="sel(this,'sim2','7','d')"><span class="opt-letter">c)</span> A taxa de juros real é positiva</div>
+<div class="opt" onclick="sel(this,'sim2','7','d')"><span class="opt-letter">d)</span> O investimento nacional é $500 bi (pela identidade S = I)</div>
+<div class="q-reveal" id="sim2_7_rev"><strong>✓ Resposta: d)</strong> Em economia fechada, pela identidade macroeconômica, S = I sempre. Logo, se S = $500 bi, então I = $500 bi. Isso independe de como a poupança se divide entre privada e pública.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte B — Verdadeiro ou Falso</h3>
+
+<div class="quiz-q">
+<div class="quiz-stem">8. "Um título de prazo mais longo emitido pela mesma empresa paga uma taxa de juros mais BAIXA que um título de curto prazo, pois há menos incerteza sobre o futuro próximo."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim2','8','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim2','8','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim2_8_rev"><strong>✓ FALSO.</strong> Ao contrário — títulos de prazo mais longo pagam juros MAIS ALTOS. O detentor fica "preso" por mais tempo, corre mais risco de não reaver o principal, e pode precisar vender antes do vencimento com deságio. Para compensar esse risco extra, paga-se juros maiores.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">9. "A diversificação de uma carteira de ações pode eliminar completamente o risco, se houver ações suficientes."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim2','9','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim2','9','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim2_9_rev"><strong>✓ FALSO.</strong> Diversificação elimina o risco específico da empresa, mas não o risco de mercado (recessão, crise sistêmica). Mesmo com 500 ações diferentes, se a economia entra em colapso, todas caem. O risco de mercado é irredutível por diversificação.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">10. "O desemprego friccional é indesejável e os formuladores de políticas deveriam tentar eliminá-lo completamente."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim2','10','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim2','10','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim2_10_rev"><strong>✓ FALSO.</strong> O desemprego friccional é inevitável e pode até ser benéfico — permite que trabalhadores encontrem empregos que melhor se adequam às suas habilidades. Uma economia sem nenhum desemprego friccional seria uma em que ninguém muda de emprego, o que seria estática e ineficiente.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">11. "Se um governo tem superávit orçamentário (T > G), a poupança pública é positiva e isso tende a REDUZIR a taxa de juros real."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim2','11','V')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim2','11','V')">Falso</button>
+</div>
+<div class="q-reveal" id="sim2_11_rev"><strong>✓ VERDADEIRO.</strong> Superávit → poupança pública positiva → poupança nacional aumenta → oferta de fundos para empréstimos sobe → curva de oferta se desloca à direita → taxa de juros real cai → estimula investimento privado.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte C — Discursivas</h3>
+
+<div class="disc-q">
+<div class="disc-stem">12. Explique o mecanismo de crowding out (exclusão do investimento privado). Descreva como, a partir de um déficit do governo, o mercado de fundos para empréstimos chega a uma nova taxa de juros de equilíbrio. Inclua a lógica das curvas de oferta e demanda em sua resposta.</div>
+<button class="btn-outline" onclick="revDisc('sim2_12_g')">Mostrar gabarito</button>
+<div class="disc-gabarito" id="sim2_12_g">
+1. Ponto de partida: governo passa a gastar mais do que arrecada (G > T). A poupança pública (T−G) fica negativa.<br>
+2. A poupança nacional = poupança privada + poupança pública. Se poupança pública cai, a poupança nacional cai.<br>
+3. No mercado de fundos para empréstimos: oferta = poupança nacional. Queda na oferta → curva de oferta se desloca à ESQUERDA.<br>
+4. Com a demanda por fundos (= investimento) inalterada, o novo ponto de equilíbrio tem taxa de juros real mais ALTA.<br>
+5. Juros mais altos tornam alguns projetos de investimento privado não lucrativos → investimento privado CAI.<br>
+6. Conclusão: o déficit do governo "expulsa" (crowd out) investimento privado. O aumento do gasto público é parcialmente compensado pela queda no investimento privado.
+</div></div>
+
+<div class="disc-q">
+<div class="disc-stem">13. Classifique e justifique o tipo de desemprego em cada caso: (a) Uma estagiária termina o contrato e leva 3 semanas para encontrar nova vaga. (b) Um mineiro perde o emprego porque a mina fechou e não há outras minas na região. (c) Um operário de montadora é demitido porque a economia entrou em recessão e as vendas de carros despencaram.</div>
+<button class="btn-outline" onclick="revDisc('sim2_13_g')">Mostrar gabarito</button>
+<div class="disc-gabarito" id="sim2_13_g">
+(a) <strong>Friccional.</strong> Período de busca normal — trabalhadora com habilidades demandadas procura o emprego certo. Temporário e inevitável em mercados dinâmicos.<br>
+(b) <strong>Estrutural.</strong> Há desajuste entre as habilidades do trabalhador e as vagas disponíveis na região. Pode ser de longo prazo e exige requalificação ou migração.<br>
+(c) <strong>Cíclico.</strong> Associado às flutuações de curto prazo do ciclo econômico. Quando a economia se recuperar, a demanda por carros voltará e empregos serão recriados. Esse tipo de desemprego não é discutido neste capítulo (cap. 28) mas integra o conceito de desvio em relação à taxa natural.
+</div></div>
+
+<div class="quiz-actions">
+<button class="btn-primary" onclick="revAll('sim2')">Mostrar todos os gabaritos</button>
+</div>
+</div>
+
+<!-- ===== SIMULADO 3 ===== -->
+<div id="sim3" class="page">
+<p class="pg-title">Simulado 3 ★ — Capítulos 29 e 30 + Revisão Geral</p>
+<p class="pg-sub">7 múltipla escolha · 4 verdadeiro/falso · 2 discursivas — foco no conteúdo principal da prova</p>
+
+<h3>Parte A — Múltipla escolha</h3>
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 29 | Médio</div>
+<div class="quiz-stem">1. O Banco Central vende títulos públicos no mercado aberto. O efeito sobre a oferta de moeda é:</div>
+<div class="opt" onclick="sel(this,'sim3','1','c')"><span class="opt-letter">a)</span> Aumenta a oferta de moeda, pois o governo obtém receita com a venda</div>
+<div class="opt" onclick="sel(this,'sim3','1','c')"><span class="opt-letter">b)</span> Sem efeito — apenas redistribui títulos e moeda entre agentes</div>
+<div class="opt" onclick="sel(this,'sim3','1','c')"><span class="opt-letter">c)</span> Reduz a oferta de moeda, pois o público entrega dinheiro ao BC em troca de títulos</div>
+<div class="opt" onclick="sel(this,'sim3','1','c')"><span class="opt-letter">d)</span> Aumenta a base monetária mas reduz os depósitos bancários</div>
+<div class="q-reveal" id="sim3_1_rev"><strong>✓ Resposta: c)</strong> Quando o BC VENDE títulos, o público PAGA com dinheiro → dinheiro sai de circulação, vai para o BC. Oferta de moeda CAI. (Mnemônico: BC vende = moeda vai embora.)</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 30 | Difícil</div>
+<div class="quiz-stem">2. A inflação esperada sobe de 2% para 7%. De acordo com o efeito Fisher, o que acontece no longo prazo com a taxa de juros nominal e a taxa de juros real?</div>
+<div class="opt" onclick="sel(this,'sim3','2','b')"><span class="opt-letter">a)</span> Nominal sobe 7pp; real sobe 2pp</div>
+<div class="opt" onclick="sel(this,'sim3','2','b')"><span class="opt-letter">b)</span> Nominal sobe 5pp; real permanece inalterada</div>
+<div class="opt" onclick="sel(this,'sim3','2','b')"><span class="opt-letter">c)</span> Nominal permanece; real cai 5pp</div>
+<div class="opt" onclick="sel(this,'sim3','2','b')"><span class="opt-letter">d)</span> Ambas sobem 5pp para compensar o risco</div>
+<div class="q-reveal" id="sim3_2_rev"><strong>✓ Resposta: b)</strong> Efeito Fisher: taxa nominal = taxa real + inflação. Inflação sobe 5pp → taxa nominal sobe 5pp → taxa real permanece inalterada (variável real, não afetada por moeda no longo prazo).</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 29 | Médio</div>
+<div class="quiz-stem">3. Um banco recebe $500 em novos depósitos e a taxa de reserva compulsória é 25%. O máximo de crédito que o SISTEMA BANCÁRIO COMO UM TODO pode criar (a partir desses $500) é:</div>
+<div class="opt" onclick="sel(this,'sim3','3','d')"><span class="opt-letter">a)</span> $375</div>
+<div class="opt" onclick="sel(this,'sim3','3','d')"><span class="opt-letter">b)</span> $125</div>
+<div class="opt" onclick="sel(this,'sim3','3','d')"><span class="opt-letter">c)</span> $2.000</div>
+<div class="opt" onclick="sel(this,'sim3','3','d')"><span class="opt-letter">d)</span> $1.500</div>
+<div class="q-reveal" id="sim3_3_rev"><strong>✓ Resposta: d)</strong> Total de depósitos criados = $500 × (1/0,25) = $500 × 4 = $2.000. Mas o montante CRIADO além do depósito inicial = $2.000 − $500 = $1.500 em crédito adicional. (Se a pergunta for sobre total de depósitos, seria $2.000.)</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 30 | Médio</div>
+<div class="quiz-stem">4. Qual dos itens abaixo é um custo de menu da inflação?</div>
+<div class="opt" onclick="sel(this,'sim3','4','a')"><span class="opt-letter">a)</span> Uma rede de fast-food precisa reemprimir todos os cardápios a cada trimestre</div>
+<div class="opt" onclick="sel(this,'sim3','4','a')"><span class="opt-letter">b)</span> Um trabalhador vai ao banco duas vezes por semana para sacar dinheiro</div>
+<div class="opt" onclick="sel(this,'sim3','4','a')"><span class="opt-letter">c)</span> O fisco tributa ganhos de capital nominais que não são reais</div>
+<div class="opt" onclick="sel(this,'sim3','4','a')"><span class="opt-letter">d)</span> Empresas de diferentes setores mudam preços em momentos diferentes</div>
+<div class="q-reveal" id="sim3_4_rev"><strong>✓ Resposta: a)</strong> Custo de menu = custo de atualizar preços fisicamente. A rede reimprimindo cardápios é o exemplo literal. Opção b = custo de sola de sapato. Opção c = distorção tributária. Opção d = variabilidade de preços relativos.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 30 | Difícil</div>
+<div class="quiz-stem">5. Usando MV = PY com V constante: a economia cresce 4% ao ano. O banco central quer manter inflação em 2%. Qual deve ser a taxa de crescimento da oferta de moeda?</div>
+<div class="opt" onclick="sel(this,'sim3','5','b')"><span class="opt-letter">a)</span> 2% — igualar à meta de inflação</div>
+<div class="opt" onclick="sel(this,'sim3','5','b')"><span class="opt-letter">b)</span> 6% — crescimento real + meta de inflação</div>
+<div class="opt" onclick="sel(this,'sim3','5','b')"><span class="opt-letter">c)</span> 4% — crescimento real apenas</div>
+<div class="opt" onclick="sel(this,'sim3','5','b')"><span class="opt-letter">d)</span> 0% — manter moeda constante garante estabilidade</div>
+<div class="q-reveal" id="sim3_5_rev"><strong>✓ Resposta: b)</strong> MV = PY → %ΔM + %ΔV = %ΔP + %ΔY. Com V constante: %ΔM = %ΔP + %ΔY = 2% + 4% = 6%. Para ter 2% de inflação com 4% de crescimento real, a moeda precisa crescer 6%.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Cap. 29 | Difícil</div>
+<div class="quiz-stem">6. Qual das afirmações sobre a relação entre cartão de crédito, cartão de débito e oferta de moeda está CORRETA?</div>
+<div class="opt" onclick="sel(this,'sim3','6','d')"><span class="opt-letter">a)</span> Ambos são parte do M1 pois são meios de pagamento aceitos</div>
+<div class="opt" onclick="sel(this,'sim3','6','d')"><span class="opt-letter">b)</span> O cartão de crédito é parte do M2 por ser de uso mais restrito que o cartão de débito</div>
+<div class="opt" onclick="sel(this,'sim3','6','d')"><span class="opt-letter">c)</span> Nenhum dos dois é moeda pois são apenas plásticos, não cédulas</div>
+<div class="opt" onclick="sel(this,'sim3','6','d')"><span class="opt-letter">d)</span> Cartão de débito acessa depósitos bancários (que são moeda); cartão de crédito é dívida (não é moeda)</div>
+<div class="q-reveal" id="sim3_6_rev"><strong>✓ Resposta: d)</strong> Cartão de débito = acesso imediato a depósitos à vista = parte do M1. Cartão de crédito = dívida com o banco emissor = forma de diferir pagamento, não é moeda. A distinção é fundamental: pagamento vs. dívida.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-cap">Caps. 29-30 | Médio</div>
+<div class="quiz-stem">7. Um governo que não consegue financiar seus gastos por impostos ou dívida decide imprimir moeda. A consequência mais direta no longo prazo, segundo a teoria quantitativa, é:</div>
+<div class="opt" onclick="sel(this,'sim3','7','a')"><span class="opt-letter">a)</span> Inflação proporcional ao crescimento da moeda, sem efeito sobre o PIB real</div>
+<div class="opt" onclick="sel(this,'sim3','7','a')"><span class="opt-letter">b)</span> Crescimento do PIB real, pois há mais dinheiro para investir</div>
+<div class="opt" onclick="sel(this,'sim3','7','a')"><span class="opt-letter">c)</span> Queda das taxas de juros nominais por excesso de liquidez</div>
+<div class="opt" onclick="sel(this,'sim3','7','a')"><span class="opt-letter">d)</span> Deflação, pois a moeda perde credibilidade</div>
+<div class="q-reveal" id="sim3_7_rev"><strong>✓ Resposta: a)</strong> Imposto inflacionário: governo imprime → M↑ → P↑ (pela teoria quantitativa). No longo prazo, pela neutralidade monetária, Y real não muda. Resultado: inflação, podendo chegar à hiperinflação se o processo se acelerar.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte B — Verdadeiro ou Falso</h3>
+
+<div class="quiz-q">
+<div class="quiz-stem">8. "Dobrar a oferta de moeda no longo prazo dobra o PIB real de uma nação."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim3','8','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim3','8','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim3_8_rev"><strong>✓ FALSO.</strong> Neutralidade monetária: no longo prazo, dobrar M dobra P (nível de preços), não Y (PIB real). PIB real é determinado por fatores reais (K, L, H, N, A), não pela quantidade de moeda.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">9. "Se a inflação efetiva for MAIOR que a inflação esperada quando um contrato de empréstimo foi firmado, o devedor se beneficia em relação ao credor."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim3','9','V')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim3','9','V')">Falso</button>
+</div>
+<div class="q-reveal" id="sim3_9_rev"><strong>✓ VERDADEIRO.</strong> O devedor paga a dívida com dinheiro que vale menos do que o esperado (poder de compra real menor). O credor recebe de volta moeda com menos poder de compra do que antecipou. Inflação surpresa redistribui riqueza de credores para devedores.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">10. "A 'falácia da inflação' consiste em acreditar que a inflação empobrece as pessoas porque reduz o poder aquisitivo do dinheiro — sem considerar que as rendas nominais também sobem."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim3','10','V')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim3','10','V')">Falso</button>
+</div>
+<div class="q-reveal" id="sim3_10_rev"><strong>✓ VERDADEIRO.</strong> Essa é exatamente a falácia descrita no capítulo 30. A inflação em si não reduz o poder de compra real — os vendedores (incluindo trabalhadores) recebem preços mais altos. Os custos reais são outros: sola de sapato, menu, distorção de preços relativos, distorção tributária, etc.</div>
+</div>
+
+<div class="quiz-q">
+<div class="quiz-stem">11. "O compulsório bancário de 20% significa que, para cada $100 em depósitos, o banco empresta no máximo $20."</div>
+<div class="tf-row">
+<button class="tf-btn" onclick="selTF(this,'sim3','11','F')">Verdadeiro</button>
+<button class="tf-btn" onclick="selTF(this,'sim3','11','F')">Falso</button>
+</div>
+<div class="q-reveal" id="sim3_11_rev"><strong>✓ FALSO.</strong> É o contrário. Compulsório de 20% significa que o banco RETÉM $20 em reserva e pode EMPRESTAR os $80 restantes. O compulsório é a fração que fica guardada, não a que é emprestada.</div>
+</div>
+
+<h3 style="margin-top:1.5rem">Parte C — Discursivas</h3>
+
+<div class="disc-q">
+<div class="disc-stem">12. Explique como o sistema de reserva fracionária permite que o sistema bancário crie moeda. Se o Banco Central injeta $2.000 em reservas no sistema com compulsório de 10%, qual o aumento máximo total nos depósitos? Mostre o raciocínio do multiplicador.</div>
+<button class="btn-outline" onclick="revDisc('sim3_12_g')">Mostrar gabarito</button>
+<div class="disc-gabarito" id="sim3_12_g">
+<strong>Mecanismo:</strong> Bancos guardam apenas uma fração dos depósitos (taxa de reserva) e emprestam o restante. Cada empréstimo vira depósito em outro banco, que emprestará sua fração disponível, e assim por diante — efeito cascata.<br><br>
+<strong>Cálculo:</strong> Multiplicador = 1 / taxa de reserva = 1/0,10 = 10.<br>
+Total de depósitos criados = $2.000 × 10 = <strong>$20.000</strong>.<br><br>
+<strong>Iteração:</strong><br>
+Banco 1: recebe $2.000, reserva $200, empresta $1.800.<br>
+Banco 2: recebe $1.800, reserva $180, empresta $1.620.<br>
+Banco 3: recebe $1.620, reserva $162, empresta $1.458.<br>
+... converge para: soma de uma PA geométrica = $2.000 / 0,10 = $20.000.<br><br>
+<strong>Limitações:</strong> na prática o multiplicador é menor porque bancos mantêm reservas excedentes e o público retém parte do dinheiro em espécie.
+</div></div>
+
+<div class="disc-q">
+<div class="disc-stem">13. Usando a equação MV = PY e o efeito Fisher, explique: (a) por que países com alta inflação geralmente têm altas taxas de juros nominais, (b) o que leva um governo a criar hiperinflação, e (c) quais são dois custos concretos que a hiperinflação impõe à sociedade.</div>
+<button class="btn-outline" onclick="revDisc('sim3_13_g')">Mostrar gabarito</button>
+<div class="disc-gabarito" id="sim3_13_g">
+(a) <strong>Efeito Fisher:</strong> taxa nominal = taxa real + inflação. Se o banco central expande muito a oferta de moeda (M↑), pela teoria quantitativa (MV=PY com V e Y estáveis), o nível de preços P sobe. Com inflação alta e persistente, os emprestadores exigem uma taxa nominal mais alta para preservar o retorno real — o ajuste é de 1pp de taxa nominal para cada 1pp de inflação. Por isso, países com inflação de 50% têm taxas de 55-60%.<br><br>
+(b) <strong>Hiperinflação:</strong> ocorre quando o governo tem déficit grande e não consegue financiá-lo por impostos normais ou dívida. A saída é emitir moeda (imposto inflacionário). À medida que a inflação sobe, o valor real das receitas tributárias cai (efeito Oliveira-Tanzi), aumentando ainda mais o déficit e a necessidade de impressão → círculo vicioso. Exemplos: Alemanha 1923, Zimbabwe 2008, Venezuela 2019.<br><br>
+(c) <strong>Dois custos concretos:</strong><br>
+1. Custo de sola de sapato ampliado: trabalhadores recebem salário e imediatamente trocam por bens ou moeda estrangeira, desperdiçando tempo produtivo (exemplo da Bolívia no livro).<br>
+2. Variabilidade extrema de preços relativos: empresas mudam preços diariamente em momentos diferentes → sinais de mercado são distorcidos → alocação de recursos completamente comprometida.
+</div></div>
+
+<div class="quiz-actions">
+<button class="btn-primary" onclick="revAll('sim3')">Mostrar todos os gabaritos</button>
+</div>
+</div>
+
+<script>
+var pages=['c23','c24','c25','c26','c27','c28','c29','c30','qbook','sim1','sim2','sim3'];
+function go(id){
+  pages.forEach(p=>{
+    document.getElementById(p).classList.remove('active');
+  });
+  document.querySelectorAll('.nav button').forEach((b,i)=>{b.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  var idx=pages.indexOf(id);
+  document.querySelectorAll('.nav button')[idx].classList.add('active');
+  window.scrollTo(0,0);
+}
+function tog(el){
+  var body=el.nextElementSibling;
+  var arrow=el.querySelector('.q-arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+function sel(el,sim,q,ans){
+  var parent=el.closest('.quiz-q');
+  parent.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  var rev=document.getElementById(sim+'_'+q+'_rev');
+  if(rev)rev.classList.add('open');
+}
+function selTF(el,sim,q,correct){
+  var parent=el.closest('.quiz-q');
+  var btns=parent.querySelectorAll('.tf-btn');
+  btns.forEach(b=>b.classList.remove('selected','tf-right','tf-wrong'));
+  el.classList.add('selected');
+  var rev=document.getElementById(sim+'_'+q+'_rev');
+  if(rev)rev.classList.add('open');
+}
+function revDisc(id){
+  document.getElementById(id).classList.add('open');
+}
+function revAll(sim){
+  var page=document.getElementById(sim);
+  page.querySelectorAll('.q-reveal,.disc-gabarito').forEach(r=>r.classList.add('open'));
+}
+</script>
+</body>
+</html>'''
+
+with open('/tmp/guia_economia.html', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print(f"File size: {len(content)} characters")
+print("Done!")
+PYEOF
+python3 /tmp/build_guide.py
+Saída
+
+File size: 96327 characters
+Done!
+Concluído
